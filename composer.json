@@ -2,7 +2,7 @@
     "name": "alielasfoury/apostrof",
     "autoload": {
         "psr-4": {
-            "Alielasfoury\\Apostrof\\": "src/"
+            "App\\": "App/"
         }
     },
     "authors": [
