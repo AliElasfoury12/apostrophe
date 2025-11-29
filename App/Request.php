@@ -6,7 +6,7 @@ class Request {
     public string $method;
     public string $url;
     public function __construct() {
-        $this->method = strtolower($_REQUEST['method']);
+        $this->method = strtolower($_SERVER['REQUEST_METHOD']);
         $this->GetUrl();
     }
 

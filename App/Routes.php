@@ -8,6 +8,7 @@ use App\Controllers\UsersController;
 class Routes {
     public function define (): void 
     {
+        Route::get('/test/{id}', fn(int $id) => "hello$id");
         Route::post('/register', [AuthController::class, 'register']);
         Route::post('/login',[AuthController::class, 'login']);
         Route::get('/users', [UsersController::class, 'index']);
