@@ -1,0 +1,15 @@
+{
+    "name": "alielasfoury/apostrof",
+    "autoload": {
+        "psr-4": {
+            "Alielasfoury\\Apostrof\\": "src/"
+        }
+    },
+    "authors": [
+        {
+            "name": "aliElasfoury",
+            "email": "alielasfoury12@gmail.com"
+        }
+    ],
+    "require": {}
+}
