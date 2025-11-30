@@ -18,4 +18,9 @@ class Request {
         else $this->url = $url;
     } 
 
+    public function inputs (): array  
+    {
+        return $_POST;
+    }
+
 }

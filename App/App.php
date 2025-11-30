@@ -16,6 +16,12 @@ class App {
 
     public function start ()  
     {
-        echo $this->router->resolve();
+        try {
+           echo $this->router->resolve();
+        } catch (\Throwable $th) {
+            echo '<pre>';
+            var_dump($th);
+            echo'</pre>';
+        }
     }
 }
