@@ -4,6 +4,7 @@ namespace App\Controllers;
 
 use App\Models\User;
 use App\Request;
+use App\Response;
 use App\Validator;
 
 class AuthController {
@@ -15,13 +16,18 @@ class AuthController {
             'password' => 'required|password|confirm'
         ]);
 
-        User::create();
+        $inputs['password'] = password_hash($inputs['password'],PASSWORD_DEFAULT);
 
-        return 'register'. json_encode($inputs);
+        $user = User::create($inputs);
+
+        return Response::json([
+            'message' => 'User Created Successfully',
+            'user' => $user
+        ],201);
     }
     
     public function login ()  
-    {
+    {   
         return 'login';
     }
 }

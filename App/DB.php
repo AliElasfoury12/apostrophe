@@ -5,6 +5,7 @@ namespace App;
 use PDO;
 use PDOException;
 use PDOStatement;
+
 class DB {
     private string $host = 'localhost';
     private string $dbName = 'apostrophe';
@@ -44,9 +45,35 @@ class DB {
         return $stmt->fetchAll($mode);
     }
 
-    // public function CreateDB (): bool|int  
-    // {
-    //     $sql = "CREATE DATABASE {$this->dbName};";
-    //     return $this->execute($sql);
-    // }
+    public function insert (string $tableName, array $columns, array $values): bool  
+    {
+        $columns_string = '';
+        $placholders  = '';
+        $is_multiple_insert = \is_array($values[0]);
+
+        foreach ($columns as $column) {
+           $columns_string .= "$column, ";
+           $placholders .= '?, ';
+        }
+
+        $columns_string = trim($columns_string, ', ');
+        $placholders = trim($placholders, ', ');
+        $placholders = "($placholders)";
+        
+        if($is_multiple_insert) {
+            $placholders = str_repeat("$placholders, ",\count($values));
+            $placholders = trim($placholders, ', ');
+        }
+
+        $sql = "INSERT INTO $tableName ($columns_string) VALUES $placholders";
+
+        return $this->prepare($sql)->execute($values);
+    }
+
+    public function lastRecord (string $tableName): array  
+    {
+        $lastId = $this->pdo->lastInsertId();
+        $sql = "SELECT * FROM  $tableName WHERE id = $lastId";
+        return $this->FetchAll($sql);
+    }
 }

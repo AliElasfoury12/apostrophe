@@ -6,11 +6,14 @@ class App {
     public Request $request;
     public Routes $routes;
     public Router $router;
+    public DB $db;
     public static App $app;
+    
     public function __construct() {
         $this->request = new Request();
         $this->router = new Router();
         $this->routes = new Routes();
+        $this->db = new DB();
         self::$app = $this;
     }
 
