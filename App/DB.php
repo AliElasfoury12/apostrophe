@@ -45,6 +45,13 @@ class DB {
         return $stmt->fetchAll($mode);
     }
 
+    public function Fetch (string $sql, int $mode = PDO::FETCH_ASSOC): array  
+    {
+        $stmt = $this->prepare($sql);
+        $stmt->execute();
+        return $stmt->fetch($mode);
+    }
+
     public function insert (string $tableName, array $columns, array $values): bool  
     {
         $columns_string = implode(', ',$columns);
@@ -77,7 +84,7 @@ class DB {
     {
         $lastId = $this->pdo->lastInsertId();
         $sql = "SELECT * FROM  $tableName WHERE id = $lastId";
-        return $this->FetchAll($sql);
+        return $this->Fetch($sql);
     }
 
     public function tableIsExsists (string $table): bool
