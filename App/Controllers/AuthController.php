@@ -2,6 +2,7 @@
 
 namespace App\Controllers;
 
+use App\App;
 use App\Models\User;
 use App\Request;
 use App\Response;
@@ -13,7 +14,7 @@ class AuthController {
         $inputs = Validator::check($request->inputs(), [
             'name' => 'required|max:100',
             'email' => 'required|email|max:150',
-            'password' => 'required|password|confirm'
+            'password' => 'required|password|confirm|max:150'
         ]);
 
         $inputs['password'] = password_hash($inputs['password'],PASSWORD_DEFAULT);
@@ -30,7 +31,6 @@ class AuthController {
             }
         }
 
-        var_dump($user);
         unset($user['password'], $user['role']);
 
         return Response::json([
@@ -39,8 +39,36 @@ class AuthController {
         ],201);
     }
     
-    public function login ()  
+    public function login (Request $request)  
     {   
-        return 'login';
+        $inputs = Validator::check($request->inputs(), [
+            'email' => 'required|email|max:150',
+            'password' => 'required|password|confirm|max:150'
+        ]);
+
+        $user = User::exsits($inputs['email']);
+
+        if(!$user) return $this->UserNotFound();
+
+        $is_password_correct = password_verify($inputs['password'],$user['password']);
+
+        if(!$is_password_correct) return $this->UserNotFound();
+
+        unset($user['password'], $user['role']);
+
+        return Response::json([
+            'message' => 'User Logged In Successfully',
+            'user' => $user
+        ]);
+
+    }
+
+    private function UserNotFound () 
+    {
+        return Response::json([
+            'errors' => [
+                'email' => 'User Not Found'
+            ]
+        ],422);
     }
 }

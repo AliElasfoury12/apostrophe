@@ -25,7 +25,7 @@ class Migrations {
             $instance = require_once self::Migrations_DIR."/$migration";;
             $this->log("Applying migration $migration");
             $sql = $instance->up();
-            Command::$command->db->execute($sql);
+            Command::$command->db->exec($sql);
             $this->log("Applied migration $migration");
             $newMigrations[] = $migration;
         }
@@ -41,7 +41,7 @@ class Migrations {
     {
         $db = Command::$command->db;
         if($db->tableIsExsists('migrations'))
-            return $db->FetchAll("SELECT migration FROM migrations",PDO::FETCH_COLUMN);
+            return $db->Fetch("SELECT migration FROM migrations");
 
         return [];
     }

@@ -25,4 +25,10 @@ class User {
         if($is_success) return $db->lastRecord('users');
         return null;
     }
+
+    public static function exsits (string $email): array  
+    {
+        $sql = "SELECT * from users WHERE email = :email";
+        return App::$app->db->Fetch($sql,[':email' => $email]);
+    }
 }

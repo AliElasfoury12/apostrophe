@@ -28,7 +28,7 @@ class DB {
         return "mysql:host={$this->host};dbname={$this->dbName};charset={$this->charset}";
     }
 
-    public function execute (string $query): bool|int 
+    public function exec (string $query): bool|int 
     {
        return $this->pdo->exec($query);
     }
@@ -38,17 +38,17 @@ class DB {
         return $this->pdo->prepare($prepare);
     }
 
-    public function FetchAll (string $sql, int $mode = PDO::FETCH_ASSOC): array  
+    public function FetchAll (string $sql, array $params = [], int $mode = PDO::FETCH_ASSOC): array  
     {
         $stmt = $this->prepare($sql);
         $stmt->execute();
         return $stmt->fetchAll($mode);
     }
 
-    public function Fetch (string $sql, int $mode = PDO::FETCH_ASSOC): array  
+    public function Fetch (string $sql, array $params = [],int $mode = PDO::FETCH_ASSOC): array  
     {
         $stmt = $this->prepare($sql);
-        $stmt->execute();
+        $stmt->execute($params);
         return $stmt->fetch($mode);
     }
 
