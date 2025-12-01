@@ -8,10 +8,7 @@ return new class {
     {
         return"CREATE TABLE migrations (
         id INT AUTO_INCREMENT PRIMARY KEY,
-        migration VARCHAR(255),
-        created_at TIMESTAMP DEFAULT CURRENT_TIMESTAMP,
-        updated_at TIMESTAMP DEFAULT CURRENT_TIMESTAMP 
-        ON UPDATE CURRENT_TIMESTAMP);";
+        migration VARCHAR(255));";
     }
 
     public function down ()  

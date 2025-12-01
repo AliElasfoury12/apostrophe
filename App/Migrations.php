@@ -6,6 +6,7 @@ use PDO;
 
 class Migrations {
     private const LAYOUT_PATH = __DIR__.'/layouts';
+    private const Migrations_DIR = __DIR__."/Migrations";
 
     public function applyMigrations (): void
     {
@@ -13,7 +14,7 @@ class Migrations {
 
         $newMigrations = [];
 
-        $files = scandir(__DIR__."/Migrations");
+        $files = scandir(self::Migrations_DIR);
         $toApplyMigrtions = array_diff($appliedMigrations,$files);;
 
         foreach ($toApplyMigrtions as $migration) {
@@ -27,7 +28,8 @@ class Migrations {
 
             $instance = new $className();
             $this->log("Applying migration $migration");
-            $instance->up();
+            $sql = $instance->up();
+            Command::$command->db->execute($sql);
             $this->log("Applied migration $migration");
             $newMigrations[] = $migration;
         }
@@ -68,12 +70,10 @@ class Migrations {
             $tableName = str_replace('_table','', $tableName);
         }
 
-        $fileName = 'M'.floor(microtime(true))."_$fileName";
-
+        $fileName = floor(microtime(true)).'_'.date('Y-m-d')."_$fileName";
         $migrationFile = file_get_contents(self::LAYOUT_PATH.'/migrations/createTable.php');
-        $migrationFile = str_replace('tableName',$tableName,$migrationFile);
 
-        file_put_contents(__DIR__."/../../database/migrations/$fileName.php",$migrationFile);
+        file_put_contents(self::Migrations_DIR."/$fileName.php",$migrationFile);
         echo "[ database/migrations/$fileName ] - Created Successfully \n";
     }
 
@@ -86,12 +86,10 @@ class Migrations {
             $tableName = str_replace('_table','', $tableName);
         }
 
-        $fileName = 'M'.floor(microtime(true))."_$fileName";
-
+        $fileName = floor(microtime(true)).'_'.date('Y-m-d')."_$fileName";
         $migrationFile = file_get_contents(self::LAYOUT_PATH.'/migrations/alterTable.php');
-        $migrationFile = str_replace('tableName',$tableName,$migrationFile);
         
-        file_put_contents(__DIR__."/../../database/migrations/$fileName.php",$migrationFile);
+        file_put_contents(self::Migrations_DIR."/$fileName.php",$migrationFile);
         echo "[ database/migrations/$fileName ] - Created Successfully \n";
     }
 }

@@ -2,12 +2,12 @@
 
 return new class
 {
-    public function up ()
+    public function up (): void 
     {
         
     } 
 
-    public function down ()
+    public function down (): void 
     {
     
 

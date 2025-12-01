@@ -1,20 +1,15 @@
 <?php
 
-use core\Database\migrations\Schema;
-use core\Database\migrations\table\Table;
-
-class className
+return new class
 {
-    public function up (): void 
+    public function up ()
     {
-        Schema::create('tableName', function (Table $table) {            
-            $table->id();
-            $table->timeStamp();
-        });
+        
     } 
 
-    public function down (): void 
+    public function down ()
     {
-        Schema::dropTable('tableName');
+    
+
     } 
-}
+};
