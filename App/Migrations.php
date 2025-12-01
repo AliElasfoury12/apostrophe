@@ -15,18 +15,14 @@ class Migrations {
         $newMigrations = [];
 
         $files = scandir(self::Migrations_DIR);
-        $toApplyMigrtions = array_diff($appliedMigrations,$files);;
+        $toApplyMigrtions = array_diff($files,$appliedMigrations);
 
         foreach ($toApplyMigrtions as $migration) {
             if ($migration === '.' || $migration === '..') {
                 continue;
             }
 
-            require_once __DIR__."/../../../database/migrations/$migration";
-
-            $className = pathinfo($migration, PATHINFO_FILENAME);
-
-            $instance = new $className();
+            $instance = require_once self::Migrations_DIR."/$migration";;
             $this->log("Applying migration $migration");
             $sql = $instance->up();
             Command::$command->db->execute($sql);
@@ -44,7 +40,6 @@ class Migrations {
     public function getAppliedMigrations ()
     {
         $db = Command::$command->db;
-
         if($db->tableIsExsists('migrations'))
             return $db->FetchAll("SELECT migration FROM migrations",PDO::FETCH_COLUMN);
 

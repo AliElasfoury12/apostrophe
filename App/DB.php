@@ -47,29 +47,32 @@ class DB {
 
     public function insert (string $tableName, array $columns, array $values): bool  
     {
-        $columns_string = '';
-        $placholders  = '';
-        $is_multiple_insert = \is_array($values[0]);
+        $columns_string = implode(', ',$columns);
+        $placholders = $this->CreatePlacholders($columns,$values);
+       
+        $sql = "INSERT INTO $tableName ($columns_string) VALUES $placholders";
+        return $this->prepare($sql)->execute($values);
+    }
 
-        foreach ($columns as $column) {
-           $columns_string .= "$column, ";
-           $placholders .= '?, ';
-        }
+    private function CreatePlacholders (array $columns,array $values): string 
+    {
+        $columnsCount = \count($columns);
+        $valuesCount = \count($values);
 
-        $columns_string = trim($columns_string, ', ');
+        $is_multiple_insert = \is_array($values[0]) || $valuesCount > $columnsCount ;
+        $placholders  = str_repeat('?, ',$columnsCount);
         $placholders = trim($placholders, ', ');
         $placholders = "($placholders)";
         
         if($is_multiple_insert) {
-            $placholders = str_repeat("$placholders, ",\count($values));
+            $placholders = str_repeat("$placholders, ",$valuesCount);
             $placholders = trim($placholders, ', ');
         }
 
-        $sql = "INSERT INTO $tableName ($columns_string) VALUES $placholders";
-
-        return $this->prepare($sql)->execute($values);
+        return $placholders;
     }
 
+   
     public function lastRecord (string $tableName): array  
     {
         $lastId = $this->pdo->lastInsertId();
@@ -77,10 +80,10 @@ class DB {
         return $this->FetchAll($sql);
     }
 
-    public function tableIsExsists (string $table): bool 
+    public function tableIsExsists (string $table): bool
     {   
         $sql = "SHOW TABLES LIKE '$table'";
-        return !$this->FetchAll($sql);
+        return $this->pdo->query($sql)->rowCount() === 1;
     }
 
 }

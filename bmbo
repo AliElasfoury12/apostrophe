@@ -8,7 +8,5 @@ try {
     $command = new Command();
     $command->handleCommand($argv);
 } catch (\Throwable $th) {
-   echo '<pre>'; 
    var_dump($th);
-   echo'</pre>';
 }

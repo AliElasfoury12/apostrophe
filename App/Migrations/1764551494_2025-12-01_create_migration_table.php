@@ -1,18 +1,16 @@
-<?php 
+<?php
 
-namespace App\Migrations;
-
-return new class {
-
-    public function up ()  
+return new class
+{
+    public function up ()
     {
         return"CREATE TABLE migrations (
         id INT AUTO_INCREMENT PRIMARY KEY,
         migration VARCHAR(255));";
-    }
+    } 
 
-    public function down ()  
+    public function down ()
     {
-    
-    }
+        return "DROP TABLE migrations";
+    } 
 };
