@@ -76,4 +76,11 @@ class DB {
         $sql = "SELECT * FROM  $tableName WHERE id = $lastId";
         return $this->FetchAll($sql);
     }
+
+    public function tableIsExsists (string $table): bool 
+    {   
+        $sql = "SHOW TABLES LIKE '$table'";
+        return !$this->FetchAll($sql);
+    }
+
 }
