@@ -45,7 +45,7 @@ class DB {
         return $stmt->fetchAll($mode);
     }
 
-    public function Fetch (string $sql, array $params = [],int $mode = PDO::FETCH_ASSOC): array  
+    public function Fetch (string $sql, array $params = [],int $mode = PDO::FETCH_ASSOC): mixed
     {
         $stmt = $this->prepare($sql);
         $stmt->execute($params);

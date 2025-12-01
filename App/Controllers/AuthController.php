@@ -2,7 +2,8 @@
 
 namespace App\Controllers;
 
-use App\App;
+use App\Data\Time;
+use App\JWT_Token;
 use App\Models\User;
 use App\Request;
 use App\Response;
@@ -31,7 +32,7 @@ class AuthController {
             }
         }
 
-        unset($user['password'], $user['role']);
+        unset($user['password'],$user['role'],$user['created_at'],$user['updated_at']);
 
         return Response::json([
             'message' => 'User Created Successfully',
@@ -43,7 +44,7 @@ class AuthController {
     {   
         $inputs = Validator::check($request->inputs(), [
             'email' => 'required|email|max:150',
-            'password' => 'required|password|confirm|max:150'
+            'password' => 'required|password|max:150'
         ]);
 
         $user = User::exsits($inputs['email']);
@@ -54,11 +55,17 @@ class AuthController {
 
         if(!$is_password_correct) return $this->UserNotFound();
 
-        unset($user['password'], $user['role']);
+        $user['role'] = User::ROLES[$user['role']];
+
+        unset($user['password']);
+        $access_token = User::CreateToken($user,Time::Hours(2));
+
+        unset($user['created_at'],$user['updated_at']);
 
         return Response::json([
             'message' => 'User Logged In Successfully',
-            'user' => $user
+            'user' => $user,
+            'token' => $access_token
         ]);
 
     }
@@ -70,5 +77,11 @@ class AuthController {
                 'email' => 'User Not Found'
             ]
         ],422);
+    }
+
+    private function SendRefreshTokenCookie (array $user) 
+    {
+        $payload = ['type' => 'refresh_token', 'id' => $user['id']];
+        $refresh_token = User::CreateToken($payload, Time::Days(30));
     }
 }

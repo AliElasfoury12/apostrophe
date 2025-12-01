@@ -1,6 +1,6 @@
 <?php 
 
-namespace core;
+namespace App;
 
 use Exception;
 
@@ -87,9 +87,14 @@ class JWT_Token {
 
     private function base64url_decode(string $data): string 
     {
-        $remainder = strlen($data) % 4;
+        $remainder = \strlen($data) % 4;
         if ($remainder) $data .= str_repeat('=', 4 - $remainder);
         return base64_decode(strtr($data, '-_', '+/'));
+    }
+
+    public function CreateSecretKey (): string  
+    {
+        return bin2hex(random_bytes(32));
     }
 }
 

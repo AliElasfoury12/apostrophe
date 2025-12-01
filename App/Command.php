@@ -6,11 +6,13 @@ class Command
 {
     public Migrations $migrations;
     public DB $db;
+    public JWT_Token $jwt_token;
     public static Command $command;
 
     public function __construct() {
         $this->migrations = new Migrations;
         $this->db = new DB;
+        $this->jwt_token = new JWT_Token();
         self::$command = $this;
     }
 
@@ -39,6 +41,10 @@ class Command
                 elseif(str_contains($argv[2],'alter'))
                     $this->migrations->alterTable($argv[2]);
             break;
+
+            case 'jwt_secret_key':
+                echo 'Your Secret Key: '.$this->jwt_token->CreateSecretKey().PHP_EOL;
+                break;
 
             default:
                 $this->notFound();
