@@ -3,7 +3,6 @@
 namespace App\Models;
 
 use App\App;
-use App\JWT_Token;
 
 class User {
 
@@ -18,8 +17,8 @@ class User {
     public static function create (array $data): array|null  
     {
         $values = [];
-        foreach (self::$fillable as $filed) {
-            if($data[$filed]) $values[] = $data[$filed];
+        foreach (self::$fillable as $field) {
+            if($data[$field]) $values[] = $data[$field];
         }
 
         $db = App::$app->db;
@@ -37,14 +36,18 @@ class User {
 
     public static function CreateToken (array $payload,int $time)  
     {
-        $secretKey = 'e9cac20ca310d324ca363f745bd7643394355b9aabff9aea31baed5d4b470b78';
-        $jwt_token = new JWT_Token();
-        return $jwt_token->CreatToken($payload,$secretKey,$time);
+        return App::$app->jwt_token->CreatToken($payload,$time);
     }
 
     public static function all (string $columns): array  
     {
         $sql = "SELECT $columns FROM users";
         return App::$app->db->FetchAll($sql);
+    }
+
+    public static function update (array $data): bool  
+    {
+        $id = 1;
+        return App::$app->db->update('users',$data,$id);
     }
 }

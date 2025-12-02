@@ -79,7 +79,6 @@ class DB {
         return $placholders;
     }
 
-   
     public function lastRecord (string $tableName): array  
     {
         $lastId = $this->pdo->lastInsertId();
@@ -93,4 +92,23 @@ class DB {
         return $this->pdo->query($sql)->rowCount() === 1;
     }
 
+    public function update (string $tableName,array $data,int|string $id): bool  
+    {
+        $columnsWithPlaceholders = '';
+        $columns = [];
+        $values = [];
+
+        foreach ($data as $column => $value) {
+            $columns[] = $column;
+            $values[] = $value;
+        }
+
+        foreach ($columns as $column) {
+            $columnsWithPlaceholders .= "$column = ? ";
+        }
+
+        $sql = "UPDATE $tableName SET $columnsWithPlaceholders WHERE id = ?";
+        $values[] = $id;
+        return $this->prepare($sql)->execute($values);
+    }
 }

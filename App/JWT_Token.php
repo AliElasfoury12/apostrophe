@@ -6,23 +6,25 @@ use Exception;
 
 class JWT_Token {
 
-    public function CreatToken (array $payload, string $secretKey, int $validation_time): string 
+    private string $secretKey = 'e9cac20ca310d324ca363f745bd7643394355b9aabff9aea31baed5d4b470b78';
+
+    public function CreatToken (array $payload, int $validation_time): string 
     {
         $b64Header = $this->header_encode();
         $b64Payload = $this->payload_encode($payload, $validation_time);
-        $b64Signature = $this->signature("$b64Header.$b64Payload", $secretKey);
+        $b64Signature = $this->signature("$b64Header.$b64Payload",$this->secretKey);
 
         return "$b64Header.$b64Payload.$b64Signature";
     }
 
-    public function CheckToken (string $jwt_token, string $secretKey) 
+    public function CheckToken (string $jwt_token) 
     {
         $parts = explode('.', $jwt_token);
         if(\count($parts) !== 3) 
             throw new Exception('Invalid Token'); 
 
         $this->check_header($parts[0]);
-        $this->check_signature($parts, $secretKey);
+        $this->check_signature($parts,$this->secretKey);
         return $this->check_payload($parts[1]);
     }
 

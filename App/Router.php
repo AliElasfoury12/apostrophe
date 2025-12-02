@@ -52,7 +52,9 @@ class Router {
 
     private function HandleCallback (Route|null $route) 
     {
-        if($route === null) return 'Not Found 404';
+        if($route === null) 
+            return Response::json(['error' => 'Not Found 404'],404);
+
         $request = App::$app->request;
 
         $callback = $route->callback;
@@ -66,7 +68,7 @@ class Router {
             return $callback($request,...$route->params);
         }
 
-        return 'Not Found 404';
+        return Response::json(['error' => 'Not Found 404'],404);
     }
 
     private function HandleRouteWithParams (string $url,string $method): Route|null 
@@ -100,6 +102,8 @@ class Router {
             case 'post': return $this->PostRoutes;
             
             case 'put': return $this->PutRoutes;
+            
+            case 'patch': return $this->PatchRoutes;
             
             case 'delete': return $this->DeleteRoutes;
         }

@@ -7,6 +7,7 @@ class App {
     public Routes $routes;
     public Router $router;
     public DB $db;
+    public JWT_Token $jwt_token;
     public static App $app;
     
     public function __construct() {
@@ -14,6 +15,7 @@ class App {
         $this->router = new Router();
         $this->routes = new Routes();
         $this->db = new DB();
+        $this->jwt_token = new JWT_Token();
         self::$app = $this;
     }
 

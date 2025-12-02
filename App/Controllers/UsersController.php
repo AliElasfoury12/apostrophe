@@ -20,12 +20,14 @@ class UsersController
         return Response::json(['users' => $users]);
     }
     
-    public function update (Request $request)  
+    public function update (Request $request,int $id)  
     {
-        $inputs = Validator::check($request->inputs(), [
+        $inputs = Validator::check($request->inputs, [
             'name' => 'required|max:100',
             'email' => 'required|email|max:150',
         ]);
+
+        return Response::json($request->auth_user());
     }
 
     public function delete ()  
