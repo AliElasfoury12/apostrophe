@@ -90,4 +90,12 @@ class AuthController {
         $cookie->name('refresh_token')->value($refresh_token)
         ->expires($time)->http_only()->send();
     }
+
+    public function changePassword (Request $request)  
+    {
+        $inputs = Validator::check($request->inputs(), [
+            'password' => 'required|password|max:150',
+            'new_password' => 'required|password|confirm|max:150'
+        ]);
+    }
 }

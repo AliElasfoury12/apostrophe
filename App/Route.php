@@ -29,6 +29,11 @@ class Route {
         App::$app->router->PutRoutes[$url] = new Route($url,$callback);
     }
 
+    public static function patch (string $url,array|string|Closure $callback)  
+    {
+        App::$app->router->PatchRoutes[$url] = new Route($url,$callback);
+    }
+
     public static function delete (string $url,array|string|Closure $callback)  
     {
         App::$app->router->DeleteRoutes[$url] = new Route($url,$callback);

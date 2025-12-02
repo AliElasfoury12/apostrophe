@@ -14,6 +14,9 @@ class Router {
     /**
     * @var Route[]*/
     public array $PutRoutes = [];
+     /**
+    * @var Route[]*/
+    public array $PatchRoutes = [];
     /**
     * @var Route[]*/
     public array $DeleteRoutes = [];

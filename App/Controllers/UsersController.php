@@ -2,9 +2,10 @@
 
 namespace App\Controllers;
 
-use App\App;
 use App\Models\User;
+use App\Request;
 use App\Response;
+use App\Validator;
 
 class UsersController
 {
@@ -19,9 +20,12 @@ class UsersController
         return Response::json(['users' => $users]);
     }
     
-    public function update ()  
+    public function update (Request $request)  
     {
-    
+        $inputs = Validator::check($request->inputs(), [
+            'name' => 'required|max:100',
+            'email' => 'required|email|max:150',
+        ]);
     }
 
     public function delete ()  
