@@ -41,4 +41,10 @@ class User {
         $jwt_token = new JWT_Token();
         return $jwt_token->CreatToken($payload,$secretKey,$time);
     }
+
+    public static function all (string $columns): array  
+    {
+        $sql = "SELECT $columns FROM users";
+        return App::$app->db->FetchAll($sql);
+    }
 }

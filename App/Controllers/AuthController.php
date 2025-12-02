@@ -4,7 +4,6 @@ namespace App\Controllers;
 
 use App\Cookie;
 use App\Data\Time;
-use App\JWT_Token;
 use App\Models\User;
 use App\Request;
 use App\Response;
