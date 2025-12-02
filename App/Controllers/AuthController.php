@@ -2,6 +2,7 @@
 
 namespace App\Controllers;
 
+use App\Cookie;
 use App\Data\Time;
 use App\JWT_Token;
 use App\Models\User;
@@ -62,6 +63,8 @@ class AuthController {
 
         unset($user['created_at'],$user['updated_at']);
 
+        $this->SendRefreshTokenCookie($user);
+
         return Response::json([
             'message' => 'User Logged In Successfully',
             'user' => $user,
@@ -81,7 +84,11 @@ class AuthController {
 
     private function SendRefreshTokenCookie (array $user) 
     {
+        $time = Time::Days(30);
         $payload = ['type' => 'refresh_token', 'id' => $user['id']];
-        $refresh_token = User::CreateToken($payload, Time::Days(30));
+        $refresh_token = User::CreateToken($payload,$time);
+        $cookie = new Cookie();
+        $cookie->name('refresh_token')->value($refresh_token)
+        ->expires($time)->http_only()->send();
     }
 }
