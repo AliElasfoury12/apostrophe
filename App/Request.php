@@ -9,6 +9,7 @@ class Request {
     public string $url;
     public array $headers;
     public array $inputs = [];
+    private array $auth_user = [];
 
     public function __construct() {
         $this->headers = getallheaders();
@@ -19,7 +20,7 @@ class Request {
 
     public function GetMethod (): string  
     {
-        $post_override_method = $this->inputs['_method'];
+        $post_override_method = $this->inputs['_method'] ?? null;
 
         if($post_override_method)
             return strtolower($post_override_method);
@@ -37,14 +38,15 @@ class Request {
 
     private function inputs (): void 
     {
+        $this->inputs = $_POST;
+
+        if($this->inputs) return;
+
         if($this->header(Headers::CONTENT_TYPE) === 'application/json'){
             $raw_data = file_get_contents('php://input');
             $data = json_decode($raw_data,true);
             $this->inputs = $data;
-            return;
         }
-
-        $this->inputs = $_POST;
     }
 
     public function header (string $name):string|null  
@@ -54,12 +56,14 @@ class Request {
 
     public function auth_user ():array|null  
     {
+        if($this->auth_user) return $this->auth_user;
+
         $bearerToken = $this->header(Headers::AUTHORIZATION); 
         if(!$bearerToken) return null;
         $token = str_replace('Bearer ','',$bearerToken);
         $payload = App::$app->jwt_token->CheckToken($token);
         if(!$payload) return null;
-        return $payload['user'];
+        $this->auth_user = $payload['user'];
+        return $this->auth_user;
     }
-
 }

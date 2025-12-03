@@ -3,6 +3,7 @@
 namespace App\Models;
 
 use App\App;
+use App\Response;
 
 class User {
 
@@ -12,17 +13,17 @@ class User {
         'password'
     ];
 
-    public const ROLES = ['admin', 'user'];
+    public const ADMIN = 'admin';
+    public const USER = 'user';
+    public const ROLES = [self::ADMIN, self::USER];
 
     public static function create (array $data): array|null  
     {
-        $values = [];
-        foreach (self::$fillable as $field) {
-            if($data[$field]) $values[] = $data[$field];
-        }
+        $data = self::filterFillableInputs($data);
+        $data = array_values($data);
 
         $db = App::$app->db;
-        $is_success = $db->insert('users',self::$fillable,$values);
+        $is_success = $db->insert('users',self::$fillable,$data);
 
         if($is_success) return $db->lastRecord('users');
         return null;
@@ -45,9 +46,26 @@ class User {
         return App::$app->db->FetchAll($sql);
     }
 
-    public static function update (array $data): bool  
+    public static function update (array $data, int|string $id): bool  
     {
-        $id = 1;
+        $data = self::filterFillableInputs($data);
+        if(!$data) false;
         return App::$app->db->update('users',$data,$id);
+    }
+
+    private static function filterFillableInputs (array $data): array 
+    {
+        $values = [];
+        foreach (self::$fillable as $field) {
+            if(@$data[$field]) $values[$field] = $data[$field];
+        }
+
+        return $values;
+    }
+
+    public static function find (int|string $id)  
+    {
+        $sql = 'SELECT * FROM users WHERE id = ?';
+        return App::$app->db->Fetch($sql,[$id]);
     }
 }

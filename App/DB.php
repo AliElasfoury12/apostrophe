@@ -33,6 +33,11 @@ class DB {
        return $this->pdo->exec($query);
     }
 
+    public function execute (string $sql, array $params = []): bool
+    {
+       return $this->prepare($sql)->execute($params);
+    }
+
     public function prepare (string $prepare): bool|PDOStatement  
     {
         return $this->pdo->prepare($prepare);
@@ -58,7 +63,7 @@ class DB {
         $placholders = $this->CreatePlacholders($columns,$values);
        
         $sql = "INSERT INTO $tableName ($columns_string) VALUES $placholders";
-        return $this->prepare($sql)->execute($values);
+        return $this->execute($sql,$values);;
     }
 
     private function CreatePlacholders (array $columns,array $values): string 
@@ -104,11 +109,25 @@ class DB {
         }
 
         foreach ($columns as $column) {
-            $columnsWithPlaceholders .= "$column = ? ";
+            $columnsWithPlaceholders .= "$column = ? , ";
         }
 
-        $sql = "UPDATE $tableName SET $columnsWithPlaceholders WHERE id = ?";
+        $columnsWithPlaceholders = trim($columnsWithPlaceholders, ', ');
+
+        $sql = "UPDATE $tableName SET $columnsWithPlaceholders WHERE id = ?;";
         $values[] = $id;
-        return $this->prepare($sql)->execute($values);
+
+        return $this->execute($sql,$values);
+    }
+
+    public static function DuplicateEntery (PDOException $PDOException)  
+    {
+        return $PDOException->getCode() == 23000;
+    }
+
+    public function delete (string $tableName, int|string $id): bool  
+    {
+        $sql = "DELETE FROM $tableName WHERE id = ? ";
+        return $this->execute($sql,[$id]);
     }
 }

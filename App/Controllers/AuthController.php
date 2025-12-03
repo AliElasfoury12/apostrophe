@@ -4,10 +4,12 @@ namespace App\Controllers;
 
 use App\Cookie;
 use App\Data\Time;
+use App\DB;
 use App\Models\User;
 use App\Request;
 use App\Response;
 use App\Validator;
+use PDOException;
 
 class AuthController {
     public function register (Request $request)  
@@ -22,14 +24,9 @@ class AuthController {
 
         try {
             $user = User::create($inputs);
-        } catch (\Throwable $th) {
-            if(str_contains($th->getMessage(),'Duplicate entry')){
-                return Response::json([
-                    'errors' => [
-                        'email' => 'Email Must Be Unique'
-                    ]
-                ],422);
-            }
+        } catch (PDOException $e) {
+            if(DB::DuplicateEntery($e))
+                return Response::errorJson(['email' => 'Email Must Be Unique']);
         }
 
         unset($user['password'],$user['role'],$user['created_at'],$user['updated_at']);
@@ -47,22 +44,13 @@ class AuthController {
             'password' => 'required|password|max:150'
         ]);
 
-        $user = User::exsits($inputs['email']);
-
-        if(!$user) return $this->UserNotFound();
-
-        $is_password_correct = password_verify($inputs['password'],$user['password']);
-
-        if(!$is_password_correct) return $this->UserNotFound();
-
+        $user = $this->isValidUser($inputs);
+       
         $user['role'] = User::ROLES[$user['role']];
 
-        unset($user['password']);
-        $access_token = User::CreateToken(['user' => $user, 'type' => 'access_token'],Time::Hours(2));
+        unset($user['password'],$user['created_at'],$user['updated_at']);
 
-        unset($user['created_at'],$user['updated_at']);
-
-        $this->SendRefreshTokenCookie($user);
+       $access_token = $this->createNewUserTokens($user);
 
         return Response::json([
             'message' => 'User Logged In Successfully',
@@ -72,15 +60,20 @@ class AuthController {
 
     }
 
-    private function UserNotFound () 
+    public function isValidUser (array $inputs): array|bool  
     {
-        return Response::json([
-            'errors' => [
-                'email' => 'User Not Found'
-            ]
-        ],422);
-    }
+        $user = User::exsits($inputs['email']);
 
+        if(!$user) 
+            Response::jsonException(['email' => 'User Not Found']);
+
+        $is_password_correct = password_verify($inputs['password'],$user['password']);
+
+        if(!$is_password_correct) 
+            Response::jsonException(['email' => 'User Not Found']);
+
+        return $user;
+    }
     private function SendRefreshTokenCookie (array $user) 
     {
         $time = Time::Days(30);
@@ -90,12 +83,17 @@ class AuthController {
         $cookie->name('refresh_token')->value($refresh_token)
         ->expires($time)->http_only()->send();
     }
-
     public function changePassword (Request $request)  
     {
         $inputs = Validator::check($request->inputs, [
             'password' => 'required|password|max:150',
             'new_password' => 'required|password|confirm|max:150'
         ]);
+    }
+
+    public function createNewUserTokens (array $user): string  
+    {
+        $this->SendRefreshTokenCookie($user);
+        return User::CreateToken(['user' => $user, 'type' => 'access_token'],Time::Hours(2));
     }
 }
