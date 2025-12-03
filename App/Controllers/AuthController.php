@@ -59,7 +59,6 @@ class AuthController {
         ]);
 
     }
-
     public function isValidUser (array $inputs): array|bool  
     {
         $user = User::exsits($inputs['email']);
@@ -74,14 +73,16 @@ class AuthController {
 
         return $user;
     }
-    private function SendRefreshTokenCookie (array $user) 
+    public function RefreshTokenCookie (array $user): Cookie 
     {
         $time = Time::Days(30);
         $payload = ['type' => 'refresh_token', 'user' => $user];
         $refresh_token = User::CreateToken($payload,$time);
         $cookie = new Cookie();
         $cookie->name('refresh_token')->value($refresh_token)
-        ->expires($time)->http_only()->send();
+        ->expires($time)->http_only();
+
+        return $cookie;
     }
     public function changePassword (Request $request)  
     {
@@ -90,10 +91,9 @@ class AuthController {
             'new_password' => 'required|password|confirm|max:150'
         ]);
     }
-
     public function createNewUserTokens (array $user): string  
     {
-        $this->SendRefreshTokenCookie($user);
+        $this->RefreshTokenCookie($user)->send();
         return User::CreateToken(['user' => $user, 'type' => 'access_token'],Time::Hours(2));
     }
 }

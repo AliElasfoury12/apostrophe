@@ -83,4 +83,10 @@ class Cookie {
     {
         setcookie($this->name,$this->value,$this->options());
     }
+
+    public function delete (): void  
+    {
+        $this->expires = time() - 60 *60;
+        setcookie($this->name,$this->value,$this->options());
+    }
 }

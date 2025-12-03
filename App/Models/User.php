@@ -68,4 +68,9 @@ class User {
         $sql = 'SELECT * FROM users WHERE id = ?';
         return App::$app->db->Fetch($sql,[$id]);
     }
+
+    public static function delete (int|string $id): bool  
+    {
+       return App::$app->db->delete('users',$id);
+    }
 }

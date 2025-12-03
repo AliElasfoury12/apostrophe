@@ -46,6 +46,17 @@ class UsersController
     public function delete (Request $request, int $id)  
     {
         $user = $this->authorizeUser($request,$id);
+        $is_deleted = User::delete($id);
+
+        if(!$is_deleted) Response::jsonException(['message' => 'No records Effected']);
+
+        $authController = new AuthController();
+        $authController->RefreshTokenCookie([])->delete();
+
+        return Response::json([
+            'message' => 'User Deleted Successfully',
+            'user' => $user,
+        ]);
     }
 
     private function authorizeUser (Request $request, int $id): array|null 
