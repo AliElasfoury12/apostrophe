@@ -7,7 +7,6 @@ use App\Data\Time;
 use App\DB;
 use App\Models\User;
 use App\Request;
-use App\Response;
 use App\Validator;
 use PDOException;
 
@@ -36,7 +35,7 @@ class AuthController extends Controller {
             'user' => $user
         ],201);
     }
-    
+
     public function login (Request $request)  
     {   
         $inputs = Validator::check($request->inputs, [
@@ -59,6 +58,29 @@ class AuthController extends Controller {
         ]);
 
     }
+
+    public function changePassword (Request $request,int $user_id)  
+    {
+        $user = User::find($user_id);
+
+        $this->authorizeUser($request,$user_id);
+
+        $new_password_hash = $this->validatePassword($request,$user);
+
+        $is_updated = User::update(['password' => $new_password_hash],$user_id);
+
+        if(!$is_updated) $this->response()->jsonException(['something went wrong']) ;
+
+        unset($user['password'], $user['created_at'], $user['updated_at']);
+
+        $user['role'] = User::ROLES[$user['role']];
+
+        return $this->response()->json([
+            'message' => 'user password updated successfully',
+            'user' => $user
+        ]);
+    }
+
     public function isValidUser (array $inputs): array|bool  
     {
         $user = User::exsits($inputs['email']);
@@ -73,6 +95,7 @@ class AuthController extends Controller {
 
         return $user;
     }
+
     public function RefreshTokenCookie (array $user): Cookie 
     {
         $time = Time::Days(30);
@@ -84,16 +107,29 @@ class AuthController extends Controller {
 
         return $cookie;
     }
-    public function changePassword (Request $request)  
+
+    public function createNewUserTokens (array $user): string  
+    {
+        $this->RefreshTokenCookie($user)->send();
+        return User::CreateToken(['user' => $user, 'type' => 'access_token'],Time::Hours(2));
+    }
+
+    private function validatePassword (Request $request, array $user): string 
     {
         $inputs = Validator::check($request->inputs, [
             'password' => 'required|password|max:150',
             'new_password' => 'required|password|confirm|max:150'
         ]);
-    }
-    public function createNewUserTokens (array $user): string  
-    {
-        $this->RefreshTokenCookie($user)->send();
-        return User::CreateToken(['user' => $user, 'type' => 'access_token'],Time::Hours(2));
+
+        $is_password_correct = password_verify($inputs['password'],$user['password']);
+
+        if(!$is_password_correct) 
+            $this->response()->jsonException(['password' => 'Wrong Password!']);
+
+        $is_same_password = password_verify($inputs['new_password'],$user['password']);
+
+        if($is_same_password) $this->response()->jsonException(["New Password Can't be Old Password"]) ;
+
+        return password_hash($inputs['new_password'],PASSWORD_DEFAULT);
     }
 }

@@ -58,23 +58,6 @@ class UsersController extends Controller
         ]);
     }
 
-    private function authorizeUser (Request $request, int $id): array|null 
-    {
-        $user = $request->auth_user();
-
-        if($user['id'] != $id && $user['role'] !== User::ADMIN) {
-            $this->response()->jsonException([
-                'error' => 'Unauthorized'
-            ],401);
-        }
-
-        if($user['id'] != $id) {
-            $user = User::find($id);
-            unset($user['password'], $user['created_at'], $user['updated_at']);
-        }
-        return $user;
-    }
-
     private function validateInputs (Request $request, array $user): array 
     {
         $inputs = Validator::check($request->inputs, [

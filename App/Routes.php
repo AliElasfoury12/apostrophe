@@ -17,7 +17,7 @@ class Routes {
     {
         Route::post('/register', [AuthController::class,'register']);
         Route::post('/login',[AuthController::class,'login']);
-        Route::patch('/change_password',[AuthController::class,'changePassword']);
+        Route::patch('/change_password/{user_id}',[AuthController::class,'changePassword']);
     }
 
     private function UsersRoutes () 

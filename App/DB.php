@@ -7,14 +7,19 @@ use PDOException;
 use PDOStatement;
 
 class DB {
-    private string $host = 'localhost';
-    private string $dbName = 'apostrophe';
+    private string $host;
+    private string $dbName;
     private string $charset = 'utf8mb4';
-    private string $user = 'root';
-    private string $password = 'root';
+    private string $user;
+    private string $password;
     private PDO $pdo;
 
     public function __construct() {
+        $this->host = $_ENV['DB_HOST'];
+        $this->dbName = $_ENV['DB_NAME'];
+        $this->user = $_ENV['DB_USER'];
+        $this->password = $_ENV['DB_PASSWORD'];
+
         try {
             $this->pdo = new PDO($this->dsn(),$this->user,$this->password);
             $this->pdo->setAttribute(PDO::ATTR_ERRMODE, PDO::ERRMODE_EXCEPTION);
