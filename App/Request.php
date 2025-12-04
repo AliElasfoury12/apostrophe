@@ -57,15 +57,15 @@ class Request {
     public function auth_user ():array|null  
     {
         if($this->auth_user) return $this->auth_user;
+        $guard = new Guard();
+        $this->auth_user = $guard->GetAuthUser();
+        return $this->auth_user;
+    }
 
+    public function bearerToken (): string|null  
+    {
         $bearerToken = $this->header(Headers::AUTHORIZATION); 
         if(!$bearerToken) return null;
-
-        $token = str_replace('Bearer ','',$bearerToken);
-        $payload =  App::$app->jwt_token->CheckToken($token);;
-        
-        if(!$payload) return null;
-        $this->auth_user = $payload['user'];
-        return $this->auth_user;
+        return str_replace('Bearer ','',$bearerToken);
     }
 }

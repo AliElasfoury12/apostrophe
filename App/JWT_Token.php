@@ -8,9 +8,21 @@ use Exception;
 class JWT_Token {
 
     private string $secretKey = 'e9cac20ca310d324ca363f745bd7643394355b9aabff9aea31baed5d4b470b78';
+    private int $access_token_time = 0;
+    private int $refresh_token_time = 0;
+    public const ACCESS_TOKEN = 'access_token';
+    public const REFRESH_TOKEN = 'refresh_token';
 
-    public function CreatToken (array $payload, int $validation_time): string 
+    public function __construct() {
+        $this->access_token_time = Time::Hours(2);
+        $this->refresh_token_time = Time::Days(30);
+    }
+
+    public function CreatToken (array $payload, string $type): string 
     {
+        if($type == self::ACCESS_TOKEN) $validation_time = $this->access_token_time;
+        else $validation_time = $this->refresh_token_time;
+
         $b64Header = $this->header_encode();
         $b64Payload = $this->payload_encode($payload, $validation_time);
         $b64Signature = $this->signature("$b64Header.$b64Payload",$this->secretKey);
@@ -18,15 +30,15 @@ class JWT_Token {
         return "$b64Header.$b64Payload.$b64Signature";
     }
 
-    public function CheckToken (string $jwt_token) 
+    public function CheckToken (string $jwt_token, string $type) 
     {
         $parts = explode('.', $jwt_token);
         if(\count($parts) !== 3) 
-            App::$app->response->jsonException('Invalid Token');
+            throw new Exception('Invalid Token');
 
         $this->check_header($parts[0]);
         $this->check_signature($parts,$this->secretKey);
-        return $this->check_payload($parts[1]);
+        return $this->check_payload($parts[1],$type);
     }
 
     private function check_header (string $b64Header): void 
@@ -34,23 +46,23 @@ class JWT_Token {
         $headerJson = $this->base64url_decode($b64Header);
         $header = json_decode($headerJson, true);
         if (!isset($header['algo']) || $header['algo'] !== 'HS256') 
-            App::$app->response->jsonException('Invalid Token');
+            throw new Exception('Invalid Token');
     }
 
-    private function check_payload (string $b64Payload) 
+    private function check_payload (string $b64Payload, string $type) 
     {
         $payloadJson = $this->base64url_decode($b64Payload);
         $payload = json_decode($payloadJson, true);
+        $new_token = null;
 
         if (!isset($payload['expires_at'])) 
-            App::$app->response->jsonException('Invalid Token');
+            throw new Exception('Invalid Token');
 
         if (isset($payload['expires_at']) && time() >= $payload['expires_at']){
-            $new_token = $this->updateToken($payload);
-            if(!$new_token) App::$app->response->jsonException('Token expired');
+            $new_token = App::$app->jwt_token->CreatToken($payload,$type);
         } 
 
-        return $payload;
+        return ['payload' => $payload, 'new_token' => $new_token];
     }
 
     private function check_signature (array $parts, string $secretKey) 
@@ -62,7 +74,7 @@ class JWT_Token {
         $expectedSig = hash_hmac('sha256', "$b64Header.$b64Payload", $secretKey, true);
 
         if (!hash_equals($expectedSig, $signature)) 
-            App::$app->response->jsonException('Invalid Token'); 
+            throw new Exception('Invalid Token'); 
     }
 
     private function header_encode (): string 
@@ -104,29 +116,4 @@ class JWT_Token {
         return bin2hex(random_bytes(32));
     }
 
-    public function updateToken (array $payload): string  
-    {
-        $refresh_token = App::$app->cookie->get('refresh_token');
-        if(!$refresh_token) App::$app->response->jsonException('Invalid Token');
-        $this->CheckToken($refresh_token);
-        $new_token = $this->CreatToken($payload, Time::Hours(2));
-        App::$app->response->addToResponse(['new_token' => $new_token]);
-        return $new_token;
-    }
 }
-
-
-// // Usage example
-// $secret = 'your-very-secret-key';
-// $jwt = new JWT_Token();
-
-// $token = $jwt->CreatToken(['sub' => 123, 'role' => 'admin'], $secret, 1800);
-// echo "Token: $token\n";
-
-// try {
-//     $secret = 'your-very-secret-ke';
-//     $payload = $jwt->CheckToken($token, $secret);
-//     print_r($payload);
-// } catch (Exception $e) {
-//     echo "Verify failed: " . $e->getMessage();
-// }

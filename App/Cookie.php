@@ -92,6 +92,6 @@ class Cookie {
 
     public function get (string $name)  
     {
-        return $_COOKIE[$name];
+        return $_COOKIE[$name] ?? null;
     }
 }

@@ -19,7 +19,10 @@ class Middelware {
 
     public function auth_jwt (Request $request)  
     {
-        if($request->auth_user()) return;
-        App::$app->response->jsonException('Unauthorized',401);
+        try {
+            $request->auth_user();
+        } catch (\Throwable $th) {
+            App::$app->response->jsonException('Unauthorized',401);
+        }
     }
 }
