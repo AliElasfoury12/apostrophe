@@ -32,7 +32,7 @@ class Validator
 
         if(!self::$errors) return $fields;
 
-        $res = Response::json([
+        $res = App::$app->response->json([
             'message' => 'Validation Faild',
             'errors' => self::$errors
         ],422);

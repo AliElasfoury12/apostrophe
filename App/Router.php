@@ -26,6 +26,7 @@ class Router {
     {
         App::$app->routes->define();
         $route = $this->GetRoute();
+        $this->HandleMiddlewares($route);
         return $this->HandleCallback($route);
     }
 
@@ -53,7 +54,7 @@ class Router {
     private function HandleCallback (Route|null $route) 
     {
         if($route === null) 
-            return Response::json(['error' => 'Not Found 404'],404);
+            return App::$app->response->json(['error' => 'Not Found 404'],404);
 
         $request = App::$app->request;
 
@@ -68,7 +69,7 @@ class Router {
             return $callback($request,...$route->params);
         }
 
-        return Response::json(['error' => 'Not Found 404'],404);
+        return App::$app->response->json(['error' => 'Not Found 404'],404);
     }
 
     private function HandleRouteWithParams (string $url,string $method): Route|null 
@@ -131,5 +132,16 @@ class Router {
         }
 
         return $route_url;
+    }
+
+    private function HandleMiddlewares (Route $route) 
+    {
+        if($route->middelwares) {
+            foreach ($route->middelwares as $middleware) {
+                $middlewareClass = new Middelware();
+                $middlewareMethod = $middlewareClass->middelwares[$middleware];
+                $middlewareClass->$middlewareMethod(App::$app->request);
+            }
+        }
     }
 }

@@ -11,7 +11,7 @@ use App\Response;
 use App\Validator;
 use PDOException;
 
-class AuthController {
+class AuthController extends Controller {
     public function register (Request $request)  
     {
         $inputs = Validator::check($request->inputs, [
@@ -26,12 +26,12 @@ class AuthController {
             $user = User::create($inputs);
         } catch (PDOException $e) {
             if(DB::DuplicateEntery($e))
-                return Response::errorJson(['email' => 'Email Must Be Unique']);
+                return $this->response()->errorJson(['email' => 'Email Must Be Unique']);
         }
 
         unset($user['password'],$user['role'],$user['created_at'],$user['updated_at']);
 
-        return Response::json([
+        return $this->response()->json([
             'message' => 'User Created Successfully',
             'user' => $user
         ],201);
@@ -52,7 +52,7 @@ class AuthController {
 
        $access_token = $this->createNewUserTokens($user);
 
-        return Response::json([
+        return $this->response()->json([
             'message' => 'User Logged In Successfully',
             'user' => $user,
             'token' => $access_token
@@ -64,12 +64,12 @@ class AuthController {
         $user = User::exsits($inputs['email']);
 
         if(!$user) 
-            Response::jsonException(['email' => 'User Not Found']);
+            $this->response()->jsonException(['email' => 'User Not Found']);
 
         $is_password_correct = password_verify($inputs['password'],$user['password']);
 
         if(!$is_password_correct) 
-            Response::jsonException(['email' => 'User Not Found']);
+            $this->response()->jsonException(['email' => 'User Not Found']);
 
         return $user;
     }

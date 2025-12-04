@@ -60,8 +60,10 @@ class Request {
 
         $bearerToken = $this->header(Headers::AUTHORIZATION); 
         if(!$bearerToken) return null;
+
         $token = str_replace('Bearer ','',$bearerToken);
-        $payload = App::$app->jwt_token->CheckToken($token);
+        $payload =  App::$app->jwt_token->CheckToken($token);;
+        
         if(!$payload) return null;
         $this->auth_user = $payload['user'];
         return $this->auth_user;

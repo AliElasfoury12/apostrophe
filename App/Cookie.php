@@ -89,4 +89,9 @@ class Cookie {
         $this->expires = time() - 60 *60;
         setcookie($this->name,$this->value,$this->options());
     }
+
+    public function get (string $name)  
+    {
+        return $_COOKIE[$name];
+    }
 }

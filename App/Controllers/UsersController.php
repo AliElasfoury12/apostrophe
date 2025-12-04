@@ -5,11 +5,10 @@ namespace App\Controllers;
 use App\DB;
 use App\Models\User;
 use App\Request;
-use App\Response;
 use App\Validator;
 use PDOException;
 
-class UsersController
+class UsersController extends Controller
 {
     public function index ()  
     {
@@ -19,7 +18,7 @@ class UsersController
             $user['role'] = User::ROLES[$user['role']];
         }
 
-        return Response::json(['users' => $users]);
+        return $this->response()->json(['users' => $users]);
     }
     
     public function update (Request $request,int $id)  
@@ -36,7 +35,7 @@ class UsersController
             $access_token = $authController->createNewUserTokens($user);
         }
         
-        return Response::json([
+        return $this->response()->json([
             'message' => 'User Updated Successfully',
             'user' => $user,
             'new_token' => $access_token
@@ -48,12 +47,12 @@ class UsersController
         $user = $this->authorizeUser($request,$id);
         $is_deleted = User::delete($id);
 
-        if(!$is_deleted) Response::jsonException(['message' => 'No records Effected']);
+        if(!$is_deleted) $this->response()->jsonException(['message' => 'No records Effected']);
 
         $authController = new AuthController();
         $authController->RefreshTokenCookie([])->delete();
 
-        return Response::json([
+        return $this->response()->json([
             'message' => 'User Deleted Successfully',
             'user' => $user,
         ]);
@@ -64,7 +63,7 @@ class UsersController
         $user = $request->auth_user();
 
         if($user['id'] != $id && $user['role'] !== User::ADMIN) {
-            Response::jsonException([
+            $this->response()->jsonException([
                 'error' => 'Unauthorized'
             ],401);
         }
@@ -97,11 +96,11 @@ class UsersController
             $is_updated = User::update($inputs,$id);
         } catch (PDOException $e) {
             if(DB::DuplicateEntery($e))
-                Response::jsonException(['email' => 'Email already Taken']);
+                $this->response()->jsonException(['email' => 'Email already Taken']);
         }
 
         if(!$is_updated)  
-            Response::jsonException(['message' => 'No records Effected']);
+            $this->response()->jsonException(['message' => 'No records Effected']);
 
         foreach ($inputs as $name => $value) {
             if(@$user[$name]) $user[$name] = $value;

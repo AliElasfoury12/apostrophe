@@ -22,8 +22,8 @@ class Routes {
 
     private function UsersRoutes () 
     {
-        Route::get('/users', [UsersController::class, 'index']);
-        Route::patch('/users/{id}', [UsersController::class, 'update']);
-        Route::delete('/users/{id}', [UsersController::class, 'delete']);
+        Route::get('/users',[UsersController::class, 'index'])->middleware(['auth:jwt']);
+        Route::patch('/users/{id}',[UsersController::class, 'update'])->middleware(['auth:jwt']);
+        Route::delete('/users/{id}',[UsersController::class, 'delete'])->middleware(['auth:jwt']);
     }
 }

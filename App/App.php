@@ -8,6 +8,8 @@ class App {
     public Router $router;
     public DB $db;
     public JWT_Token $jwt_token;
+    public Cookie $cookie;
+    public Response $response;
     public static App $app;
     
     public function __construct() {
@@ -16,6 +18,8 @@ class App {
         $this->routes = new Routes();
         $this->db = new DB();
         $this->jwt_token = new JWT_Token();
+        $this->cookie = new Cookie();
+        $this->response = new Response();
         self::$app = $this;
     }
 

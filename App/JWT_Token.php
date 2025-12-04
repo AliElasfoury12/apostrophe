@@ -2,6 +2,7 @@
 
 namespace App;
 
+use App\Data\Time;
 use Exception;
 
 class JWT_Token {
@@ -21,7 +22,7 @@ class JWT_Token {
     {
         $parts = explode('.', $jwt_token);
         if(\count($parts) !== 3) 
-            throw new Exception('Invalid Token'); 
+            App::$app->response->jsonException('Invalid Token');
 
         $this->check_header($parts[0]);
         $this->check_signature($parts,$this->secretKey);
@@ -33,7 +34,7 @@ class JWT_Token {
         $headerJson = $this->base64url_decode($b64Header);
         $header = json_decode($headerJson, true);
         if (!isset($header['algo']) || $header['algo'] !== 'HS256') 
-            throw new Exception('Invalid Token'); 
+            App::$app->response->jsonException('Invalid Token');
     }
 
     private function check_payload (string $b64Payload) 
@@ -42,10 +43,12 @@ class JWT_Token {
         $payload = json_decode($payloadJson, true);
 
         if (!isset($payload['expires_at'])) 
-            throw new Exception('Invalid Token'); 
+            App::$app->response->jsonException('Invalid Token');
 
-        if (isset($payload['expires_at']) && time() >= $payload['expires_at']) 
-            throw new Exception('Token expired');
+        if (isset($payload['expires_at']) && time() >= $payload['expires_at']){
+            $new_token = $this->updateToken($payload);
+            if(!$new_token) App::$app->response->jsonException('Token expired');
+        } 
 
         return $payload;
     }
@@ -59,7 +62,7 @@ class JWT_Token {
         $expectedSig = hash_hmac('sha256', "$b64Header.$b64Payload", $secretKey, true);
 
         if (!hash_equals($expectedSig, $signature)) 
-            throw new Exception('Invalid Token'); 
+            App::$app->response->jsonException('Invalid Token'); 
     }
 
     private function header_encode (): string 
@@ -71,9 +74,11 @@ class JWT_Token {
     private function payload_encode (array $payload, int $validationTime): string 
     {
         $now = time();
-        $payload = array_merge([
-            'created_at' => $now, 'expires_at' => $now + $validationTime
-        ], $payload);
+        $payload = [
+            'created_at' => $now,
+            'expires_at' => $now + $validationTime,
+            ...$payload
+        ];
         return $this->base64url_encode(json_encode($payload));
     }
 
@@ -97,6 +102,16 @@ class JWT_Token {
     public function CreateSecretKey (): string  
     {
         return bin2hex(random_bytes(32));
+    }
+
+    public function updateToken (array $payload): string  
+    {
+        $refresh_token = App::$app->cookie->get('refresh_token');
+        if(!$refresh_token) App::$app->response->jsonException('Invalid Token');
+        $this->CheckToken($refresh_token);
+        $new_token = $this->CreatToken($payload, Time::Hours(2));
+        App::$app->response->addToResponse(['new_token' => $new_token]);
+        return $new_token;
     }
 }
 
