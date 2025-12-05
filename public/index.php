@@ -1,12 +1,8 @@
 <?php 
 
 use App\App;
-use Dotenv\Dotenv;
 
-include_once '../vendor/autoload.php';
-
-$dotenv = Dotenv::createUnsafeImmutable(dirname(__DIR__));
-$dotenv->load();
+require_once __DIR__."/../vendor/autoload.php";
 
 $app = new App();
 $app->start();

@@ -20,7 +20,7 @@ class UsersController extends Controller
 
         return $this->response()->json(['users' => $users]);
     }
-    
+
     public function update (Request $request,int $id)  
     {
         $user = $this->authorizeUser($request,$id);

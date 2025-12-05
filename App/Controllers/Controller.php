@@ -17,7 +17,7 @@ class Controller {
     {
         $user = $request->auth_user();
 
-        if($user['id'] != $id && $user['role'] !== User::ADMIN) {
+        if($user['id'] != $id && $user['role'] == User::USER) {
             $this->response()->jsonException([
                 'error' => 'Unauthorized'
             ],401);
@@ -25,6 +25,7 @@ class Controller {
 
         if($user['id'] != $id) {
             $user = User::find($id);
+            $user['role'] = User::ROLES[$user['role']];
             unset($user['password'], $user['created_at'], $user['updated_at']);
         }
         return $user;

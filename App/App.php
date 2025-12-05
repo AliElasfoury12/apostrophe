@@ -2,6 +2,8 @@
 
 namespace App;
 
+use Dotenv\Dotenv;
+
 class App {
     public Request $request;
     public Routes $routes;
@@ -13,6 +15,7 @@ class App {
     public static App $app;
     
     public function __construct() {
+        $this->load_ENV();
         $this->request = new Request();
         $this->router = new Router();
         $this->routes = new Routes();
@@ -30,5 +33,11 @@ class App {
         } catch (\Throwable $th) {
             var_dump($th);
         }
+    }
+
+    private function load_ENV () 
+    {
+        $dotenv = Dotenv::createImmutable(dirname(__DIR__));
+        $dotenv->load();
     }
 }

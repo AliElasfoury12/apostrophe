@@ -15,11 +15,6 @@ class DB {
     private PDO $pdo;
 
     public function __construct() {
-        $this->host = $_ENV['DB_HOST'];
-        $this->dbName = $_ENV['DB_NAME'];
-        $this->user = $_ENV['DB_USER'];
-        $this->password = $_ENV['DB_PASSWORD'];
-
         try {
             $this->pdo = new PDO($this->dsn(),$this->user,$this->password);
             $this->pdo->setAttribute(PDO::ATTR_ERRMODE, PDO::ERRMODE_EXCEPTION);
@@ -30,6 +25,11 @@ class DB {
 
     private function dsn (): string 
     {
+        $this->host = $_ENV['DB_HOST'];
+        $this->dbName = $_ENV['DB_NAME'];
+        $this->user = $_ENV['DB_USER'];
+        $this->password = $_ENV['DB_PASSWORD'];
+
         return "mysql:host={$this->host};dbname={$this->dbName};charset={$this->charset}";
     }
 
