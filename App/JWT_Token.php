@@ -7,7 +7,7 @@ use Exception;
 
 class JWT_Token {
 
-    private string $secretKey = 'e9cac20ca310d324ca363f745bd7643394355b9aabff9aea31baed5d4b470b78';
+    private string $secretKey;
     private int $access_token_time = 0;
     private int $refresh_token_time = 0;
     public const ACCESS_TOKEN = 'access_token';
@@ -16,6 +16,7 @@ class JWT_Token {
     public function __construct() {
         $this->access_token_time = Time::Hours(2);
         $this->refresh_token_time = Time::Days(30);
+        $this->secretKey = $_ENV['JWT_SECERT_KEY'];
     }
 
     public function CreatToken (array $payload, string $type): string 
