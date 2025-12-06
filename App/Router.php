@@ -38,13 +38,13 @@ class Router {
         $route = '';
 
         switch ($method) {
-            case 'get': $route = $this->GetRoutes[$url]; break;
+            case 'get': $route = @$this->GetRoutes[$url]; break;
 
-            case 'post': $route = $this->PostRoutes[$url]; break;
+            case 'post': $route = @$this->PostRoutes[$url]; break;
             
-            case 'put': $route = $this->PutRoutes[$url]; break;
+            case 'put': $route = @$this->PutRoutes[$url]; break;
             
-            case 'delete': $route = $this->DeleteRoutes[$url]; break;
+            case 'delete': $route = @$this->DeleteRoutes[$url]; break;
         }
 
         if($route) return $route;
