@@ -26,6 +26,8 @@ class Router {
     {
         App::$app->routes->define();
         $route = $this->GetRoute();
+        if($route === null) 
+            return App::$app->response->json(['error' => 'Not Found 404'],404);
         $this->HandleMiddlewares($route);
         return $this->HandleCallback($route);
     }
@@ -53,9 +55,6 @@ class Router {
 
     private function HandleCallback (Route|null $route) 
     {
-        if($route === null) 
-            return App::$app->response->json(['error' => 'Not Found 404'],404);
-
         $request = App::$app->request;
 
         $callback = $route->callback;

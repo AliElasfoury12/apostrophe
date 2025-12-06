@@ -12,3 +12,9 @@
 
 ### Create Secret Key For JWT TOKEN
     php bmbo jwt_secret_key
+
+## App/Routes.php   // define Routes
+## App/Models       // add models for Database Communication
+## App/Controllers  // define api logic
+## App/Migrations   // migrations files
+## App/Guard        // how to validated tokens and get auth user 
