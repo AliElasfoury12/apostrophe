@@ -42,7 +42,7 @@ class Guard {
             $user_exsist = User::find($user['id']);
             if(!$user_exsist) {
                 $refresh_token_cookie->delete();
-                throw new Exception('Invalid Token');
+                throw new Exception("User Doesn't Exsists");
             }
 
             $refresh_token_cookie->send();

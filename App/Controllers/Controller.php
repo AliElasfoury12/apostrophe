@@ -16,14 +16,24 @@ class Controller {
     protected function authorizeUser (Request $request, int $id): array|null 
     {
         $user = $request->auth_user();
+        $auth_id = $user['id'];
 
-        if($user['id'] != $id && $user['role'] == User::USER) {
+        if($auth_id != $id && $user['role'] == User::USER) {
             $this->response()->jsonException([
                 'error' => 'Unauthorized'
             ],401);
         }
 
-        if($user['id'] != $id) {
+        if($user['role'] == User::ADMIN){
+            $admin_user = User::find($auth_id);
+            if(!$admin_user){
+                $this->response()->jsonException([
+                    'error' => 'Unauthorized'
+                ],401);
+            }
+        }
+
+        if($auth_id != $id) {
             $user = User::find($id);
             $user['role'] = User::ROLES[$user['role']];
             unset($user['password'], $user['created_at'], $user['updated_at']);

@@ -154,8 +154,6 @@ new_token(optional)
 
 ### Response (200)
 
-new_token(optional)
-
 ```json
     {
         "message": "User Password Updated Successfully",
@@ -169,3 +167,26 @@ new_token(optional)
     }
 ```
 
+## 6.Delete User
+
+### Path
+    DELETE /users/{user_id}
+
+### Headers
+    Content-Type : application/json
+    Authorization: Bearer {$auth-bearer-token} 
+
+
+### Response (200)
+
+```json
+    {
+        "message": "User Deleted Successfully",
+        "user": {
+            "id": 8,
+            "name": "ali",
+            "email": "ali7@gmail.com",
+            "role": "user"
+        }
+    }
+```
